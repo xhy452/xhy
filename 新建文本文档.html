@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DX订餐系统</title>
+    <style>
+        body {
+            background-color: #add8e6;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .date-info {
+            color: #333;
+            font-size: 18px;
+        }
+        .booking-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #666;
+            text-align: center;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DX订餐系统</h1>
+        <div class="date-info" id="currentDate"></div>
+    </div>
+
+    <table class="booking-table" id="bookingTable"></table>
+
+    <div style="margin: 20px;">
+        <input type="text" id="userName" placeholder="请输入姓名" required>
+        <button onclick="submitOrder()">提交预约</button>
+    </div>
+
+    <div>
+        <button onclick="showRecords()">查询当月记录</button>
+        <button onclick="exportExcel()">导出汇总Excel</button>
+    </div>
+
+    <script>
+        // 动态生成本周日期（周一到周五）
+        function generateWeekDates() {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+            
+            let dates = [];
+            for (let i = 0; i < 5; i++) {
+                let date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                dates.push(date);
+            }
+            return dates;
+        }
+
+        // 初始化表格
+        function initTable() {
+            const dates = generateWeekDates();
+            const table = document.getElementById('bookingTable');
+            let html = `<tr><th>日期</th><th>早餐</th><th>中餐</th><th>晚餐</th></tr>`;
+            
+            dates.forEach(date => {
+                const day = date.toLocaleDateString('zh-CN', { weekday: 'long' });
+                const isFriday = date.getDay() === 5;
+                html += `<tr>
+                    <td>${date.toLocaleDateString()} ${day}</td>
+                    <td><button onclick="selectMeal(this, '早餐')">选择</button></td>
+                    <td><button onclick="selectMeal(this, '中餐')">选择</button></td>
+                    <td>${
+                        isFriday 
+                            ? '<button disabled>不可选</button>' 
+                            : '<button onclick="selectMeal(this, \'晚餐\')">选择</button>'
+                    }</td>
+                </tr>`;
+            });
+            table.innerHTML = html;
+            document.getElementById('currentDate').textContent = `当前日期：${new Date().toLocaleDateString()} 星期${'日一二三四五六'[new Date().getDay()]}`;
+        }
+
+        // 选择餐次
+        let selectedMeals = {};
+        function selectMeal(btn, mealType) {
+            const date = btn.parentElement.parentElement.children[0].textContent.split(' ')[0];
+            if (!selectedMeals[date]) selectedMeals[date] = [];
+            if (!selectedMeals[date].includes(mealType)) {
+                selectedMeals[date].push(mealType);
+                btn.disabled = true;
+                btn.textContent = '已选';
+            }
+        }
+
+        // 提交订单
+        function submitOrder() {
+            const userName = document.getElementById('userName').value;
+            if (!userName) return alert('请输入姓名');
+            if (confirm('确认提交预约？')) {
+                const records = JSON.parse(localStorage.getItem('orders') || '[]');
+                Object.keys(selectedMeals).forEach(date => {
+                    selectedMeals[date].forEach(meal => {
+                        records.push({
+                            date,
+                            meal,
+                            userName,
+                            timestamp: new Date().getTime()
+                        });
+                    });
+                });
+                localStorage.setItem('orders', JSON.stringify(records));
+                alert('提交成功！');
+                location.reload();
+            }
+        }
+
+        // 查询与导出
+        function showRecords() {
+            const month = new Date().getMonth() + 1;
+            const records = JSON.parse(localStorage.getItem('orders') || '[]')
+                .filter(r => new Date(r.timestamp).getMonth() + 1 === month);
+            console.table(records);
+        }
+
+        function exportExcel() {
+            // 使用SheetJS库（需引入）或生成CSV
+            const records = JSON.parse(localStorage.getItem('orders') || '[]');
+            let csv = '姓名,日期,餐次\n';
+            records.forEach(r => csv += `${r.userName},${r.date},${r.meal}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '订餐汇总.csv';
+            link.click();
+        }
+
+        // 初始化
+        initTable();
+    </script>
+</body>
+</html>
