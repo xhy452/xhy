@@ -1,0 +1,116 @@
+<！doctype html>
+<html>
+<头>
+    <title> dx订餐系统</title>
+    <样式>
+        身体{背景：＃e6f7ff;保证金：0;字体家庭：arial}
+        。
+        。
+        .date-bar {显示：flex; jusify-content：中心；差距：15px;保证金：20px 0}
+        .meal-card {背景：#fff;填充：20px;边界拉迪乌斯：8px;盒子阴影：0 2px 6px 6px rgba （0,0,0,0.1）}
+        。
+        .meal-btn {
+            填充：8px 15px;边界：无；边界拉迪乌斯：4px；
+            光标：指针；过渡：0.3s
+        }
+        .select {背景：＃a3d8ff}}
+        。
+    </style>
+</head>
+<身体>
+    <div class =“容器”>
+        <div class =“ header”>
+            <h1> dx订餐系统</h1>
+            <div ID =“ CurrentDate”> </div>
+        </div>
+        
+        <！ -输入区->
+        <div class =“用餐卡”>
+            <输入type =“ text” id =“用户名”占位符=“请输入姓名” style =“ width：200px;填充：8px”>
+        </div>
+
+        <！ -日期选择区->
+        <div class =“用餐卡”>
+            <div class =“ week-Grid” id =“ weekGrid”> </div>
+            <button onclick =“ bissorder（）” style =“保证 -  top：20px”>提交订单</button>
+        </div>
+
+        <！ - 查询区->
+        <div class =“用餐卡”>
+            <button onclick =“ ShowRecords（）”>查看本月记录</button>
+            <button onclick =“ exportdata（）”>导出excel </button>
+            <div id =“ cescord”> </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化日期数据（示例：2025-03-10至03-14）
+        const今天= 新日期（2025，2，14）; //3月为2222）（0）
+        令selectimeals = {};
+
+        //生成周选择界面
+        函数（（Initweek）（Initweek）（（（（（
+            令html ='';
+            （让 i = 0;我<5; i ++）{
+                const日期= 新日期（今天）;
+                date.setdate今天。
+                
+                html +=`<div>
+                    态
+                    $ {['早餐'，'''，'，'晚餐'] .map feal，j（j）=>
+                        `<button class =“餐点”
+                            $ {i === 4 && j === 2'''class =“禁用”'：'
+                            onclick =“ togglemeal（$ {i}，$ {j}）”> $ {feal} </button>`
+                    （（（））（'）}}
+                </div>`;
+            }
+            document.getElementById（'WeekGrid'）。InnerHtml= html;
+            document.getElementById（'current -date'）。textContent = todagcontent = todagcontent = todary.tolocaledatestestring（） +'星期'''''' +'日一二三四五六'[today.getDay（）;
+        }
+
+        //餐次选择逻辑
+        功能tweglemeal（dayindex，fualIndex）{
+            const btns = document.getElementsByClassName（'feal-btn'）;
+            const btn = btns [dayIndex*3 + fealIndex];
+            btn.classlist.toggle（'selected'）;
+            selectedmeals [$ {dayIndex}  -  $ {fealIndex}`] = btn.classlist.contains.contains.contains（'selected'）;
+        }
+
+        //提交订单
+        函数（子库）（（子）{）{
+            const用户名= document.getElementById（'用户名'）。值。
+            （（'请输入姓名'））；
+            
+            const确认= 确认（'''）;
+            （）{
+                const StoreKey =`$ {today.getLucear（）}  -  $ {today.getMonth（）+1}`;
+                const storddata = json.parse（localstorage.getItem（stalekekey）|| {};
+                
+                object.keys （（（（selectedmeals）。
+                    const [day，餐] = key.split（' - '）;
+                    const datekey = 新日期（今天）;
+                    datekey.setdate today.tody.getDate（） - 今天。
+                    storeddata [dateKey.tolocaledateString（）] = {
+                        ... storeddata [dateKey.tolocaledateString（）]，
+                        [用户名]：[...（storeddata [dateKey.tolocaledateString（）] ？。 [用户名] || []（]（（]），餐]
+                    };
+                （}）;
+                
+                localstorage.setitem（店里，json.stringify（storddata）;
+                （'订餐成功！'）；
+                selectemeals = {};
+            }
+        }
+
+        //数据导出
+        函数exportdata（）{
+            // CSV 生成逻辑（完整版见补充说明）
+            const link = document.createelement（'a'）;
+            link.href ='数据：text/csv; charset = utf-8，' + encodeuri（csvcontent）;
+            link.download =`订餐记录_ $ {new date（）tolocaledatestestestring（（）}}}} csv`;
+            link.Click（）;
+        }
+    </script>
+    <script> initweek（）; </script>
+</body>
+</html>
